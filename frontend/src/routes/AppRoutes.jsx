@@ -1,9 +1,11 @@
-
+import React, { Suspense } from 'react'
 import { Route, BrowserRouter, Routes, useLocation } from 'react-router-dom'
-import Login from '../screens/Login'
-import Register from '../screens/Register'
-import Home from '../screens/Home'
-import Project from '../screens/Project'
+
+const Login = React.lazy(() => import('../screens/Login'));
+const Register = React.lazy(() => import('../screens/Register'));
+const Home = React.lazy(() => import('../screens/Home'));
+const Project = React.lazy(() => import('../screens/Project'));
+
 import UserAuth from '../auth/UserAuth'
 import Navbar from '../components/Navbar'
 
@@ -12,27 +14,27 @@ const AppLayout = () => {
     const hideNavbar = ['/login', '/register'].includes(location.pathname)
     return (
 
-        <>
+         <>
             {!hideNavbar && <Navbar />}
-            <Routes>
-                <Route path='/' element={<UserAuth><Home /></UserAuth>}></Route>
-                <Route path='/login' element={<Login />}></Route>
-                <Route path='/register' element={<Register />}></Route>
-                <Route path='/project' element={<UserAuth><Project /></UserAuth>}></Route>
 
-            </Routes>
-
-
+            <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                    <Route path='/' element={<UserAuth><Home /></UserAuth>} />
+                    <Route path='/login' element={<Login />} />
+                    <Route path='/register' element={<Register />} />
+                    <Route path='/project' element={<UserAuth><Project /></UserAuth>} />
+                </Routes>
+            </Suspense>
         </>
-    )
-}
+    );
+};
 
 const AppRoutes = () => {
     return (
         <BrowserRouter>
             <AppLayout />
         </BrowserRouter>
-    )
-}
+    );
+};
 
 export default AppRoutes
