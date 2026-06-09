@@ -11,11 +11,17 @@ connect();
 
 const app = express();
 
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    next();
+});
+
 app.use(cors());
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 
 app.use('/users', userRoutes);
@@ -24,7 +30,7 @@ app.use('/ai', aiRoutes);
 
 
 
-app.get('/', (req, res) => { res.send('Hello World!')});
+app.get('/', (req, res) => { res.send('Hello World!') });
 
 
 
