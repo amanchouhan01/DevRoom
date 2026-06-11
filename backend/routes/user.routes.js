@@ -13,10 +13,14 @@ router.post('/register',
     body('name').isLength({min: 3}).withMessage('Name must be at least 3 characters long'),
     userController.createUserController);
 
+router.post('/verify-signup', userController.verifySignupOTPController);
+
 router.post('/login',
     body('email').isEmail().withMessage('Email must be a valid email address'),
     body('password').isLength({min: 3}).withMessage('Password must be at least 3 characters long'),
     userController.loginController);
+
+router.post('/verify-login', userController.verifyLoginOTPController);
 
 router.get('/profile', authMiddleware.authUser, userController.profileController);
 
