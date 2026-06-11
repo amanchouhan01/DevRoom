@@ -1,4 +1,4 @@
-# 🤖 AI Agent — Collaborative Coding Environment
+# 🤖 DevRoom — Collaborative Coding Environment
 
 A real-time AI-powered collaborative coding platform where developers can chat, write code, and run it live in the browser — all in one place.
 
@@ -48,7 +48,7 @@ A real-time AI-powered collaborative coding platform where developers can chat, 
 ## 📁 Project Structure
 
 ```
-ai_agent/
+DevRoom/
 ├── frontend/
 │   ├── src/
 │   │   ├── screens/
@@ -103,8 +103,8 @@ ai_agent/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/amanchouhan01/ai_agent
-cd ai-agent
+git clone https://github.com/amanchouhan01/DevRoom.git
+cd DevRoom
 ```
 
 ### 2. Backend Setup
