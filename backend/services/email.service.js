@@ -11,21 +11,19 @@ oauth2Client.setCredentials({
     refresh_token: process.env.GMAIL_REFRESH_TOKEN
 })
 
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        type: 'OAuth2',
+        user: process.env.GMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+    }
+})
+
 export const sendOTP = async (email, otp) => {
-    const accessToken = await oauth2Client.getAccessToken()
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            type: 'OAuth2',
-            user: process.env.GMAIL_USER,
-            clientId: process.env.GMAIL_CLIENT_ID,
-            clientSecret: process.env.GMAIL_CLIENT_SECRET,
-            refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-            accessToken: accessToken.token,
-        }
-    })
-
     await transporter.sendMail({
         from: `"DevRoom" <${process.env.GMAIL_USER}>`,
         to: email,
