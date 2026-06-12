@@ -11,9 +11,8 @@ oauth2Client.setCredentials({
     refresh_token: process.env.GMAIL_REFRESH_TOKEN
 })
 
-
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: '74.125.130.108',  // smtp.gmail.com ka IPv4
     port: 587,
     secure: false,
     auth: {
@@ -22,6 +21,9 @@ const transporter = nodemailer.createTransport({
         clientId: process.env.GMAIL_CLIENT_ID,
         clientSecret: process.env.GMAIL_CLIENT_SECRET,
         refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 })
 
