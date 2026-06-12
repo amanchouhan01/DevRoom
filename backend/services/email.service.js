@@ -1,18 +1,19 @@
 import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        type: 'OAuth2',
+        user: process.env.GMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
     }
 })
 
 export const sendOTP = async (email, otp) => {
     await transporter.sendMail({
-        from: `"DevRoom" <${process.env.EMAIL_USER}>`,
+        from: `"DevRoom" <${process.env.GMAIL_USER}>`,
         to: email,
         subject: 'Your DevRoom OTP',
         html: `
