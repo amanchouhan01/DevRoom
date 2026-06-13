@@ -142,9 +142,9 @@ export const verifyLoginOTPController = async (req, res) => {
 
 
 export const profileController = async (req, res) => {
-  const user = await userModel.findById(req.user._id);
+  const user = await userModel.findById(req.user._id).select('-password');
   res.status(200).json({
-    user: req.user
+    user
   });
 }
 

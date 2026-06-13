@@ -10,7 +10,7 @@ export default defineConfig({
       name: 'configure-response-headers',
       configureServer(server) {
         server.middlewares.use((_req, res, next) => {
-          res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+          res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless')
           res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
           next()
         })
@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   server: {
     headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Embedder-Policy": "credentialless",
       "Cross-Origin-Opener-Policy": "same-origin"
 
     }

@@ -46,7 +46,7 @@ const Profile = () => {
             })
             setUser(res.data.user)
             setAvatarFile(null)
-            toast.success('Avatar updated!')
+            toast.success('Profile picture updated!')
         } catch (err) {
             showApiError(err, 'Failed to upload avatar')
         } finally {
@@ -119,7 +119,7 @@ const Profile = () => {
     }
 
     return (
-        <main className='min-h-screen bg-slate-900 text-white px-6 md:px-10 py-12'>
+        <main className='min-h-screen bg-slate-900 text-white px-4 sm:px-6 md:px-10 py-8 md:py-12'>
             <div className='max-w-2xl mx-auto'>
                 <button onClick={() => navigate(-1)} className='text-sm text-slate-400 hover:text-white mb-6 flex items-center gap-2'>
                     <i className='ri-arrow-left-line'></i> Back
@@ -130,7 +130,7 @@ const Profile = () => {
                 {/* Avatar */}
                 <section className='bg-slate-800 border border-slate-700 rounded-xl p-6 mb-6'>
                     <h2 className='text-sm font-semibold text-slate-300 mb-4'>Profile Picture</h2>
-                    <div className='flex items-center gap-4'>
+                    <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4'>
                         <div className='w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-semibold overflow-hidden shrink-0'>
                             {avatarPreview ? (
                                 <img src={avatarPreview} alt='avatar' className='w-full h-full object-cover' />
@@ -138,14 +138,14 @@ const Profile = () => {
                                 user?.name?.[0]?.toUpperCase()
                             )}
                         </div>
-                        <div className='flex flex-col gap-2'>
-                            <label className='px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm cursor-pointer transition w-fit'>
+                        <div className='flex flex-col gap-2 w-full sm:w-auto'>
+                            <label className='px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm cursor-pointer transition text-center sm:text-left sm:w-fit'>
                                 Choose Image
                                 <input type='file' accept='image/*' onChange={handleAvatarChange} className='hidden' />
                             </label>
                             {avatarFile && (
                                 <button onClick={handleAvatarUpload} disabled={loading}
-                                    className='px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm transition w-fit'>
+                                    className='px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm transition sm:w-fit'>
                                     {loading ? 'Uploading...' : 'Save Picture'}
                                 </button>
                             )}
@@ -156,14 +156,14 @@ const Profile = () => {
                 {/* Name */}
                 <section className='bg-slate-800 border border-slate-700 rounded-xl p-6 mb-6'>
                     <h2 className='text-sm font-semibold text-slate-300 mb-4'>Name</h2>
-                    <div className='flex gap-3'>
+                    <div className='flex flex-col sm:flex-row gap-3'>
                         <input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className='flex-1 px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500'
+                            className='flex-1 w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500'
                         />
                         <button onClick={handleNameUpdate} disabled={loading}
-                            className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition'>
+                            className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap'>
                             Save
                         </button>
                     </div>
@@ -175,13 +175,13 @@ const Profile = () => {
                     <p className='text-sm text-slate-400 mb-4'>Current: <span className='text-white'>{user?.email}</span></p>
 
                     {!emailOtpSent ? (
-                        <div className='flex gap-3'>
+                        <div className='flex flex-col sm:flex-row gap-3'>
                             <input
                                 type='email'
                                 value={newEmail}
                                 onChange={(e) => setNewEmail(e.target.value)}
                                 placeholder='New email address'
-                                className='flex-1 px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500 placeholder-slate-500'
+                                className='flex-1 w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500 placeholder-slate-500'
                             />
                             <button onClick={handleRequestEmailOtp} disabled={loading || !newEmail}
                                 className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap'>
@@ -189,22 +189,25 @@ const Profile = () => {
                             </button>
                         </div>
                     ) : (
-                        <div className='flex gap-3'>
+                        <div className='flex flex-col sm:flex-row gap-3'>
                             <input
                                 value={emailOtp}
                                 onChange={(e) => setEmailOtp(e.target.value)}
                                 placeholder='Enter OTP'
                                 maxLength={6}
-                                className='flex-1 px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500 placeholder-slate-500'
+                                className='flex-1 w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500 placeholder-slate-500'
                             />
-                            <button onClick={handleVerifyEmailOtp} disabled={loading || !emailOtp}
-                                className='px-5 py-2.5 bg-green-600 hover:bg-green-500 disabled:opacity-50 rounded-lg text-sm font-medium transition'>
-                                Verify
-                            </button>
-                            <button onClick={() => { setEmailOtpSent(false); setEmailOtp('') }}
-                                className='px-4 py-2.5 border border-slate-600 hover:bg-slate-700 rounded-lg text-sm transition'>
-                                Cancel
-                            </button>
+                            <div className='flex gap-3'>
+                                <button onClick={handleVerifyEmailOtp} disabled={loading || !emailOtp}
+                                    className='flex-1 sm:flex-none px-5 py-2.5 bg-green-600 hover:bg-green-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap'>
+                                    Verify
+                                </button>
+                                <button onClick={() => { setEmailOtpSent(false); setEmailOtp('') }}
+                                    className='flex-1 sm:flex-none px-4 py-2.5 border border-slate-600 hover:bg-slate-700 rounded-lg text-sm transition whitespace-nowrap'>
+                                    Cancel
+                                </button>
+
+                            </div>
                         </div>
                     )}
                 </section>
