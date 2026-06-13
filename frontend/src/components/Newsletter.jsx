@@ -31,7 +31,7 @@ const Newsletter = () => {
     }
 
     return (
-        <div className='flex-1 p-8 md:p-10 flex flex-col justify-center'>
+        <div className='flex-1 p-2 md:p-10 flex flex-col justify-center'>
             <h3 className='text-xl md:text-2xl font-bold text-white mb-2'>Get the latest updates</h3>
             <p className='text-slate-400 text-sm mb-6'>Sign up for our newsletter — new features, tips, and dev insights.</p>
 

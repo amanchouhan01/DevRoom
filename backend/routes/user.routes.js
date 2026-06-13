@@ -40,7 +40,11 @@ router.put('/update-password', authMiddleware.authUser, userController.updatePas
 
 router.post('/request-email-change', authMiddleware.authUser, userController.requestEmailChange);
 
-router.post('/verify-email-change', authMiddleware.authUser, userController.verifyEmailChange)
+router.post('/verify-email-change', authMiddleware.authUser, userController.verifyEmailChange);
+
+//Password change routes
+router.post('/forgot-password', userController.forgotPassword);
+router.post('/reset-password', userController.resetPassword);
 
 
 export default router;

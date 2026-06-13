@@ -8,6 +8,9 @@ import bcrypt from 'bcrypt'
 import { Resend } from 'resend'
 
 
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+
 export const createUserController = async (req, res) => {
   const errors = validationResult(req);
 
@@ -180,8 +183,6 @@ export const getAllUsersController = async (req, res) => {
 }
 
 //Update Profile Controller
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 // Update name
 export const updateProfile = async (req, res) => {
   try {
@@ -223,7 +224,6 @@ export const updateAvatar = async (req, res) => {
   }
 }
 
-
 // Update password
 export const updatePassword = async (req, res) => {
   try {
@@ -249,7 +249,6 @@ export const updatePassword = async (req, res) => {
     res.status(500).json({ message: 'Failed to update password' })
   }
 }
-
 
 // Request email change - sends OTP to new email
 export const requestEmailChange = async (req, res) => {
@@ -323,5 +322,87 @@ export const verifyEmailChange = async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: 'Failed to verify OTP' })
+  }
+}
+
+//Forgot Password Flow:
+// Step 1: Request OTP
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' })
+    }
+
+    const user = await userModel.findOne({ email })
+    if (!user) {
+      return res.status(404).json({ message: 'No account found with this email' })
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+
+    user.resetPasswordOTP = otp
+    user.resetPasswordOTPExpiry = new Date(Date.now() + 10 * 60 * 1000)
+    await user.save()
+
+    await resend.emails.send({
+      from: 'DevRoom <noreply@devroom.sbs>',
+      to: email,
+      subject: 'Reset your DevRoom password',
+      html: `
+            <div style="font-family: Arial; max-width: 400px; margin: auto; padding: 20px; background: #1e293b; color: white; border-radius: 12px;">
+                <h2 style="color: #3b82f6;">DevRoom: Password Reset Request</h2>
+                <p>Your OTP to reset your password is: </p>
+                <h1 style="letter-spacing: 8px; color: #3b82f6; font-size: 36px;">${otp}</h1>
+                <p style="color: #94a3b8;">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
+            </div>
+      `
+
+    })
+
+    res.json({ message: 'OTP sent to your email' })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ message: 'Failed to send OTP' })
+  }
+}
+
+
+//Step 2: Verify OTP + Set new password
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' })
+    }
+
+    const user = await userModel.findOne({ email })
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' })
+    }
+
+    if (!user.resetPasswordOTP || !user.resetPasswordOTPExpiry) {
+      return res.status(400).json({ message: 'No OTP requested' })
+    }
+
+    if (user.resetPasswordOTPExpiry < new Date()) {
+      return res.status(400).json({ message: 'OTP expired' })
+    }
+
+    if (user.resetPasswordOTP !== otp) {
+      return res.status(400).json({ message: 'Invalid OTP' })
+    }
+
+    user.password = await userModel.hashPassword(newPassword)
+    user.resetPasswordOTP = undefined
+    user.resetPasswordOTPExpiry = undefined
+    await user.save()
+
+    res.json({ message: 'Password reset successfully' })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Failed to reset password' })
   }
 }
