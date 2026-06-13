@@ -27,7 +27,17 @@ const userSchema = new mongoose.Schema({
         select: false,
     },
 
-    isVerified: { type: Boolean, default: false }
+    isVerified: { type: Boolean, default: false },
+
+    avatar: {
+        type: String,
+        default: ''
+    },
+
+    emailChangeOTP: { type: String },
+    emailChangeOTPExpiry: { type: Date },
+    pendingEmail: { type: String }
+
 }, { timestamps: true })
 
 userSchema.statics.hashPassword = async function (password) {

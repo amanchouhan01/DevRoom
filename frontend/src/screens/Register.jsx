@@ -21,6 +21,17 @@ const Register = () => {
 
     const [resendCooldown, setResendCooldown] = useState(0);
 
+
+    function showApiError(err, fallback = "Something went wrong") {
+        const data = err.response?.data;
+        if (data?.errors?.length) {
+            data.errors.forEach((er) => toast.error(er.msg));
+        } else {
+            toast.error(data?.message || fallback);
+        }
+    }
+
+
     useEffect(() => {
         if (resendCooldown <= 0) return;
         const timer = setInterval(() => {
@@ -29,7 +40,7 @@ const Register = () => {
         return () => clearInterval(timer)
     }, [resendCooldown]);
 
-    
+
     function submitHandler(e) {
         e.preventDefault();
         if (password !== confirmPassword) {
@@ -43,8 +54,7 @@ const Register = () => {
             toast.success(res.data.message || "OTP sent to you email")
             setStep('otp')
         }).catch((err) => {
-            toast.error(err.response?.data?.message || "Registration failed")
-            console.log(err.response?.data)
+            showApiError(err, "Registration failed");
         })
     };
 
@@ -56,10 +66,9 @@ const Register = () => {
             toast.success("Email Verified! Welcome 🎉")
             localStorage.setItem('token', res.data.token)
             setUser(res.data.user)
-            navigate('/')
+            navigate('/home')
         }).catch((err) => {
-            toast.error(err.response?.data?.message || "Invalid OTP")
-            console.log(err.response?.data)
+            showApiError(err, "Invalid OTP");
         })
     };
 
@@ -72,14 +81,14 @@ const Register = () => {
         }).then((res) => {
             toast.success(res.response?.data?.message || "OTP resent to your email")
         }).catch((err) => {
-            toast.error(err.response?.data?.message || "Failed to resend OTP")
+            showApiError(err, "Failed to resend OTP");
         })
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10">
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-10">
             <div className="w-full max-w-xl rounded-[28px] border border-slate-800 bg-slate-900/95 shadow-[0_30px_80px_rgba(15,23,42,0.35)] overflow-hidden">
-                <div className="bg-slate-950 px-8 py-10 sm:px-10">
+                <div className="bg-slate-900 px-8 py-10 sm:px-10">
 
                     {step == 'register' && (
                         <>
@@ -95,7 +104,7 @@ const Register = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">Name</label>
-                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
+                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3">
                                         <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input
                                             type="text"
@@ -110,7 +119,7 @@ const Register = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
-                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
+                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
                                         <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input
                                             type="email"
@@ -125,7 +134,7 @@ const Register = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
+                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
                                         <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input
                                             type="password"
@@ -140,7 +149,7 @@ const Register = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">Confirm password</label>
-                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
+                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
                                         <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input
                                             type="password"

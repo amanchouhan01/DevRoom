@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import * as projectController from '../controllers/project.controller.js';
 import * as authMiddleWare from '../middleware/auth.middleware.js';
+import { authUser } from '../middleware/auth.middleware.js'
+import Project from '../models/project.model.js'
 
 
 const router = Router();
@@ -43,9 +45,34 @@ router.put('/update-file-tree',
     projectController.updateFileTree
 )
 
+router.get('/ai-queries-today', authUser, async (req, res) => {
+    try {
+        const startOfDay = new Date()
+        startOfDay.setHours(0, 0, 0, 0)
+
+        const projects = await Project.find({ users: req.user._id })
+
+        let count = 0
+        projects.forEach(proj => {
+            proj.messages.forEach(msg => {
+                if (
+                    msg.sender?._id === 'ai' &&
+                    new Date(msg.createdAt) >= startOfDay
+                ) {
+                    count++
+                }
+            })
+        })
+
+        res.json({ count })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ message: 'Failed to fetch AI queries' })
+    }
+})
+
 router.delete('/:projectId',
     authMiddleWare.authUser,
     projectController.deleteProject)
-
 
 export default router;

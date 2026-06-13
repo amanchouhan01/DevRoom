@@ -27,6 +27,24 @@ const Login = () => {
         return () => clearInterval(timer)
     }, [resendCooldown]);
 
+
+    function showApiError(err, fallback = "Something went wrong") {
+        const data = err.response?.data;
+
+        if (Array.isArray(data?.errors)) {
+            // errors is an array of {msg: "..."}
+            data.errors.forEach((er) => toast.error(er.msg || er));
+        } else if (typeof data?.errors === 'string') {
+            // errors is a plain string
+            toast.error(data.errors);
+        } else if (data?.message) {
+            toast.error(data.message);
+        } else {
+            toast.error(fallback);
+        }
+    }
+
+
     function submitHandler(e) {
         e.preventDefault();
 
@@ -39,8 +57,7 @@ const Login = () => {
             setResendCooldown(30)
         })
             .catch((err) => {
-                toast.error(err.response?.data?.errors || err.response?.data?.message || "Login failed");
-                console.log(err.response?.data || err.message);
+                showApiError(err, "Login failed");
             })
     }
 
@@ -53,10 +70,9 @@ const Login = () => {
             toast.success("Logged in successfully")
             localStorage.setItem('token', res.data.token)
             setUser(res.data.user)
-            navigate('/')
+            navigate('/home')
         }).catch((err) => {
-            toast.error(err.response?.data?.message || "Invalid OTP")
-            console.log(err.response?.data)
+            showApiError(err, "Invalid OTP");
         })
     }
 
@@ -67,14 +83,14 @@ const Login = () => {
             toast.success("OTP resent to your email")
             setResendCooldown(30)
         }).catch((err) => {
-            toast.error(err.response?.data?.errors || err.response?.data?.message || "Failed to resend OTP")
+            showApiError(err, "Failed to resend OTP")
         })
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10">
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-10">
             <div className="w-full max-w-xl rounded-[28px] border border-slate-800 bg-slate-900/95 shadow-[0_30px_80px_rgba(15,23,42,0.35)] overflow-hidden">
-                <div className="bg-slate-950 px-8 py-10 sm:px-10">
+                <div className="bg-slate-900 px-8 py-10 sm:px-10">
 
                     {step === 'login' && (
                         <>
@@ -89,7 +105,7 @@ const Login = () => {
                             <form onSubmit={submitHandler} className="space-y-5">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
-                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
+                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
                                         <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input
                                             type="email"
@@ -104,7 +120,7 @@ const Login = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
+                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
                                         <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input
                                             type="password"

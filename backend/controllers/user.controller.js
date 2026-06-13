@@ -4,6 +4,8 @@ import * as userService from '../services/user.service.js';
 import { validationResult } from 'express-validator';
 import { generateOTP, storeOTP, verifyOTP } from '../services/otp.service.js';
 import { sendOTP } from '../services/email.service.js';
+import bcrypt from 'bcrypt'
+import { Resend } from 'resend'
 
 
 export const createUserController = async (req, res) => {
@@ -143,6 +145,7 @@ export const profileController = async (req, res) => {
   });
 }
 
+
 export const logoutController = async (req, res) => {
   try {
     const token = req.cookies.token || req.headers.authorization.split(' ')[1];
@@ -158,6 +161,7 @@ export const logoutController = async (req, res) => {
   }
 }
 
+
 export const getAllUsersController = async (req, res) => {
   try {
     const loggedInUser = await userModel.findOne({
@@ -172,5 +176,152 @@ export const getAllUsersController = async (req, res) => {
   } catch (err) {
     console.log(err)
     res.status(400).json({ error: err.message })
+  }
+}
+
+//Update Profile Controller
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+// Update name
+export const updateProfile = async (req, res) => {
+  try {
+    const { name } = req.body
+    if (!name || name.trim().length < 3) {
+      return res.status(400).json({ message: 'Name must be at least 3 characters' })
+    }
+
+    const user = await userModel.findByIdAndUpdate(
+      req.user._id,
+      { name: name.trim() },
+      { new: true }
+    ).select('-password')
+
+    res.json({ user })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Failed to update profile' })
+  }
+}
+
+// Update avatar
+export const updateAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' })
+    }
+
+    const user = await userModel.findByIdAndUpdate(
+      req.user._id,
+      { avatar: req.file.path },
+      { new: true }
+    ).select('-password')
+
+    res.json({ user })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Failed to upload avatar' })
+  }
+}
+
+
+// Update password
+export const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters' })
+    }
+
+    const user = await userModel.findById(req.user._id).select('+password')
+
+    const isValid = await user.isValidPassword(currentPassword)
+    if (!isValid) {
+      return res.status(400).json({ message: 'Current password is incorrect' })
+    }
+
+    user.password = await userModel.hashPassword(newPassword)
+    await user.save()
+
+    res.json({ message: 'Password updated successfully' })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Failed to update password' })
+  }
+}
+
+
+// Request email change - sends OTP to new email
+export const requestEmailChange = async (req, res) => {
+  try {
+    const { newEmail } = req.body
+
+    if (!newEmail || !/^\S+@\S+\.\S+$/.test(newEmail)) {
+      return res.status(400).json({ message: 'Valid email required' })
+    }
+
+    const existing = await userModel.findOne({ email: newEmail })
+    if (existing) {
+      return res.status(400).json({ message: 'Email already in use' })
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+
+    await userModel.findByIdAndUpdate(req.user._id, {
+      pendingEmail: newEmail,
+      emailChangeOTP: otp,
+      emailChangeOTPExpiry: new Date(Date.now() + 10 * 60 * 1000) // 10 min
+    })
+
+    await resend.emails.send({
+      from: 'DevRoom <noreply@devroom.sbs>',
+      to: newEmail,
+      subject: 'Verify your new email - DevRoom',
+      html: `
+            <div style="font-family: Arial; max-width: 400px; margin: auto; padding: 20px; background: #1e293b; color: white; border-radius: 12px;">
+                <h2 style="color: #3b82f6;">DevRoom: New Email Verification</h2>
+                <p>Your OTP to confirm this email change is: </p>
+                <h1 style="letter-spacing: 8px; color: #3b82f6; font-size: 36px;">${otp}</h1>
+                <p style="color: #94a3b8;">This code expires in 10 minutes. Do not share this with anyone.</p>
+            </div>
+        `
+    })
+
+    res.json({ message: 'OTP sent to new email' })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Failed to send OTP' })
+  }
+}
+
+// Verify OTP and update email
+export const verifyEmailChange = async (req, res) => {
+  try {
+    const { otp } = req.body
+    const user = await userModel.findById(req.user._id)
+
+    if (!user.emailChangeOTP || !user.pendingEmail) {
+      return res.status(400).json({ message: 'No pending email change request' })
+    }
+
+    if (user.emailChangeOTPExpiry < new Date()) {
+      return res.status(400).json({ message: 'OTP expired' })
+    }
+
+    if (user.emailChangeOTP !== otp) {
+      return res.status(400).json({ message: 'Invalid OTP' })
+    }
+
+    user.email = user.pendingEmail
+    user.pendingEmail = undefined
+    user.emailChangeOTP = undefined
+    user.emailChangeOTPExpiry = undefined
+    await user.save()
+
+    const updatedUser = await userModel.findById(user._id).select('-password')
+    res.json({ message: 'Email updated successfully', user: updatedUser })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Failed to verify OTP' })
   }
 }
