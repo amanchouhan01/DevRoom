@@ -2,28 +2,33 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
 const model = genAI.getGenerativeModel({
-  model: "gemini-3.1-flash-lite",
+  model: "gemini-flash-latest",
   generationConfig: {
     responseMimeType: "application/json",
     temperature: 0.4,
   },
-  systemInstruction: `You are an expert in MERN and Development. You have an experience of 10 years in the development.
-                        You always write code in modular and break the code in the possible way and follow best practices,
-                        You use understandable comments in the code, you create files as needed, you write code while maintaining 
-                        the working of previous code. You always follow the best practices of the development You never miss the 
-                        edge cases and always write code that is scalable and maintainable, In your code you always handle the 
-                        errors and exceptions.
-    
-    Examples: 
+  systemInstruction: `You are an expert MERN stack developer with 10 years of experience.
+You write modular, scalable, well-commented code following best practices.
+You handle all edge cases and errors properly.
 
-    <example>
- 
-    user:Create an express application 
-    response: {
-    IMPORTANT RESPONSE FORMAT RULES:
+═══════════════════════════════════════════
+RESPONSE FORMAT — ALWAYS RETURN VALID JSON
+═══════════════════════════════════════════
 
-1. Every file inside fileTree MUST follow this exact structure:
+Your response must ALWAYS be a valid JSON object with this structure:
 
+{
+  "text": "explanation of what you built",
+  "fileTree": { ... },
+  "buildCommand": { "mainItem": "npm", "commands": ["install"] },
+  "startCommand": { "mainItem": "node", "commands": ["server.js"] }
+}
+
+═══════════════════════════════════════════
+FILE TREE RULES
+═══════════════════════════════════════════
+
+EVERY file node MUST use this exact format:
 {
   "filename.ext": {
     "file": {
@@ -32,111 +37,223 @@ const model = genAI.getGenerativeModel({
   }
 }
 
-2. NEVER use this format:
-
+For NESTED folders use this format:
 {
-  "filename.ext": {
-    "contents": "file content here"
+  "src": {
+    "components": {
+      "Button.jsx": {
+        "file": {
+          "contents": "export default function Button() { return <button>Click</button> }"
+        }
+      },
+      "Navbar.jsx": {
+        "file": {
+          "contents": "export default function Navbar() { return <nav>Nav</nav> }"
+        }
+      }
+    },
+    "App.jsx": {
+      "file": {
+        "contents": "import Button from './components/Button'\nexport default function App() { return <Button /> }"
+      }
+    }
+  },
+  "package.json": {
+    "file": {
+      "contents": "{ \"name\": \"app\", \"version\": \"1.0.0\" }"
+    }
   }
 }
 
-3. The contents field must ALWAYS be wrapped inside:
-file -> contents
+RULES:
+- Folder nodes are plain objects containing more file/folder nodes
+- File nodes MUST have: { "file": { "contents": "..." } }
+- NEVER use paths as keys like "src/App.jsx" — use proper nesting instead
+- NEVER use null, undefined, or empty contents
+- ALWAYS include package.json with ALL required dependencies
+- ALWAYS include a start script in package.json
+- package.json dependencies must include every package imported in the code
 
-4. Every generated source file, configuration file, JSON file, CSS file, JSX file, TS file, environment file, markdown file and script file must use:
+═══════════════════════════════════════════
+PACKAGE.JSON RULES
+═══════════════════════════════════════════
 
+- Include ALL npm packages used in the code
+- Always add a "start" script: "node server.js" or "node index.js"
+- For React apps add: "start": "react-scripts start"
+- For Vite apps add: "start": "vite"
+- For Express apps add: "start": "node server.js"
+
+═══════════════════════════════════════════
+EXAMPLES
+═══════════════════════════════════════════
+
+EXAMPLE 1 — Simple Express app:
 {
-  "file": {
-    "contents": "..."
-  }
-}
-
-5. Always return a valid JSON object.
-
-6. When generating projects, return all files inside fileTree.
-
-7. Never return null, undefined, or empty file nodes.
-
-8. Example:
-
-{
+  "text": "Here is a basic Express server with routes",
   "fileTree": {
     "server.js": {
       "file": {
-        "contents": "console.log('server')"
+        "contents": "const express = require('express')\\nconst app = express()\\napp.use(express.json())\\napp.get('/', (req, res) => res.send('Hello World'))\\napp.listen(3000, () => console.log('Server running on port 3000'))"
       }
     },
     "package.json": {
       "file": {
-        "contents": "{ \"name\": \"app\" }"
+        "contents": "{\\n  \\"name\\": \\"express-app\\",\\n  \\"version\\": \\"1.0.0\\",\\n  \\"scripts\\": {\\n    \\"start\\": \\"node server.js\\"\\n  },\\n  \\"dependencies\\": {\\n    \\"express\\": \\"^4.18.2\\"\\n  }\\n}"
       }
     }
-  }
+  },
+  "buildCommand": { "mainItem": "npm", "commands": ["install"] },
+  "startCommand": { "mainItem": "node", "commands": ["server.js"] }
 }
-  "IMPORTANT": [
-    "When generating fileTree, use only root-level filenames as keys. Do not use nested paths like "src/App.jsx" or "client/src/App.jsx"."
-    "Do not create nested folders",
-    "Do not use paths like src/server.js",
-    "Do not use routes/index.js",
-    "All files must be in the project root",
-    "Use only filenames like index.js, server.js, routes.js"
-  ]
-  "text": "this is your fileTree structure of the express server",
+
+EXAMPLE 2 — Nested folder structure:
+{
+  "text": "Here is an Express app with MVC structure",
   "fileTree": {
-    "app.js": {
+    "src": {
+      "routes": {
+        "user.routes.js": {
+          "file": {
+            "contents": "const express = require('express')\\nconst router = express.Router()\\nrouter.get('/', (req, res) => res.json({ users: [] }))\\nmodule.exports = router"
+          }
+        }
+      },
+      "controllers": {
+        "user.controller.js": {
+          "file": {
+            "contents": "exports.getUsers = (req, res) => res.json({ users: [] })"
+          }
+        }
+      }
+    },
+    "server.js": {
       "file": {
-        "contents": "const express = require('express');
-             const app = express();
-             app.get('/', (req, res) => {
-                res.send('Hello World!');
-                });
-                app.listen(3000, () => {
-                      console.log('Server is running on port 3000');
-                      });"
+        "contents": "const express = require('express')\\nconst userRoutes = require('./src/routes/user.routes')\\nconst app = express()\\napp.use('/users', userRoutes)\\napp.listen(3000, () => console.log('Running on 3000'))"
       }
     },
     "package.json": {
       "file": {
-        "contents": "{
-        "name": "temp-server",  
-        "version": "1.0.0",
-        "main": "app.js",
-        "scripts": {
-        "start": 
-        "node app.js" 
-        },"keywords": [],
-        "author": "",
-          "license": "ISC",
-          "description": "",
-          "dependencies": {"express": 
-          "^4.21.2" }
-          }"
+        "contents": "{\\n  \\"name\\": \\"mvc-app\\",\\n  \\"version\\": \\"1.0.0\\",\\n  \\"scripts\\": {\\n    \\"start\\": \\"node server.js\\"\\n  },\\n  \\"dependencies\\": {\\n    \\"express\\": \\"^4.18.2\\"\\n  }\\n}"
       }
     }
   },
-  "buildCommand": {
-    "mainItem": "npm",
-    "commands": ["install"]
-  },
-  "startCommand": {
-    "mainItem": "node",
-    "commands": ["app.js"]
+  "buildCommand": { "mainItem": "npm", "commands": ["install"] },
+  "startCommand": { "mainItem": "node", "commands": ["server.js"] }
+}
+
+EXAMPLE 3 — Greeting (no code):
+{
+  "text": "Hello! How can I help you today? I can build Express APIs, React apps, MERN stacks, and more.",
+  "fileTree": {}
+}
+`
+});
+
+// 🔧 Helper: safely extract valid JSON even if extra text/chars follow it
+function safeJsonParse(text) {
+  // First try direct parse
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // Fallback: extract the first valid JSON object via brace matching
+    const start = text.indexOf('{');
+    if (start === -1) throw e;
+
+    let depth = 0;
+    let inString = false;
+    let escapeNext = false;
+
+    for (let i = start; i < text.length; i++) {
+      const ch = text[i];
+
+      if (escapeNext) {
+        escapeNext = false;
+        continue;
+      }
+
+      if (ch === '\\') {
+        escapeNext = true;
+        continue;
+      }
+
+      if (ch === '"') {
+        inString = !inString;
+        continue;
+      }
+
+      if (inString) continue;
+
+      if (ch === '{') depth++;
+      if (ch === '}') {
+        depth--;
+        if (depth === 0) {
+          const jsonStr = text.slice(start, i + 1);
+          return JSON.parse(jsonStr);
+        }
+      }
+    }
+
+    // If we get here, braces never balanced — rethrow original error
+    throw e;
   }
 }
-            
-   
-    </example>
 
-       <example>
+// 🔧 Helper: find package.json node anywhere in the fileTree
+function findPackageJson(tree) {
+  if (!tree || typeof tree !== "object") return null;
 
-       user:Hello 
-       response:{
-       "text":"Hello, How can I help you today?"
-       }
-       
-       </example>  
-    `
-});
+  for (const [k, v] of Object.entries(tree)) {
+    if (k === "package.json" && v?.file?.contents !== undefined) {
+      return v;
+    }
+    if (v && typeof v === "object" && !v.file) {
+      const found = findPackageJson(v);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// 🔧 Helper: detect entry file at root (server.js / index.js / app.js)
+function findEntryFile(tree) {
+  const candidates = ["server.js", "index.js", "app.js"];
+  for (const name of candidates) {
+    if (tree?.[name]?.file?.contents) return name;
+  }
+  return "server.js"; // default fallback
+}
+
+// 🔧 Patch package.json to guarantee a "start" script exists
+function ensureStartScript(fileTree) {
+  if (!fileTree) return fileTree;
+
+  const pkgNode = findPackageJson(fileTree);
+  if (!pkgNode) return fileTree; // nothing to patch
+
+  let pkg;
+  try {
+    pkg = JSON.parse(pkgNode.file.contents);
+  } catch (e) {
+    pkg = {};
+  }
+
+  if (!pkg.scripts) pkg.scripts = {};
+
+  if (!pkg.scripts.start) {
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    if (deps?.["react-scripts"]) {
+      pkg.scripts.start = "react-scripts start";
+    } else if (deps?.["vite"]) {
+      pkg.scripts.start = "vite";
+    } else {
+      pkg.scripts.start = `node ${findEntryFile(fileTree)}`;
+    }
+  }
+
+  pkgNode.file.contents = JSON.stringify(pkg, null, 2);
+  return fileTree;
+}
 
 export const generateResult = async (prompt) => {
   const maxRetries = 3;
@@ -146,10 +263,14 @@ export const generateResult = async (prompt) => {
     try {
       const result = await model.generateContent(prompt);
       const text = result.response.text();
+      const parsed = safeJsonParse(text);
 
-      // Gemini JSON mode returns string - parse it to object
-      return JSON.parse(text);
+      // 🔧 Ensure package.json always has a valid "start" script
+      if (parsed.fileTree) {
+        parsed.fileTree = ensureStartScript(parsed.fileTree);
+      }
 
+      return parsed;
     } catch (err) {
       if (err.message?.includes('quota') && i < maxRetries - 1) {
         console.log(`Quota hit, retrying in ${delay / 1000}s...`);

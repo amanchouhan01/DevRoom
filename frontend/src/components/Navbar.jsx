@@ -1,6 +1,7 @@
 import { useContext, useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { UserContext } from '../context/user.context'
+import { NotificationContext } from '../context/notification.context'
 import axios from '../config/axios'
 
 const Navbar = () => {
@@ -10,11 +11,17 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const profileRef = useRef(null)
+    const { pendingInvites, respondInvite } = useContext(NotificationContext)
+    const [isNotifOpen, setIsNotifOpen] = useState(false)
+    const notifRef = useRef(null)
 
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (profileRef.current && !profileRef.current.contains(e.target)) {
                 setIsProfileOpen(false)
+            }
+            if (notifRef.current && !notifRef.current.contains(e.target)) {
+                setIsNotifOpen(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
@@ -41,6 +48,10 @@ const Navbar = () => {
                 refs[section + 'Ref'].current.scrollIntoView({ behavior: 'smooth' })
             }
         }
+    }
+
+    const handleRespond = (projectId, action) => {
+        respondInvite(projectId, action)
     }
 
     function logout() {
@@ -103,14 +114,21 @@ const Navbar = () => {
     const links = user ? loggedInLinks : publicLinks
 
     return (
-        <nav className='sticky top-0 z-50 grid grid-cols-2 md:grid-cols-3 items-center px-6 md:px-10 h-14 bg-slate-900/90 backdrop-blur border-b border-slate-800'>
+        <nav className='sticky  top-0 z-50 grid grid-cols-2 md:grid-cols-3 items-center px-6 md:px-10 h-14 bg-slate-900/90 backdrop-blur border-b border-slate-800'>
 
             {/* Logo */}
-            <div className='flex items-center gap-2 cursor-pointer' onClick={() => navigate(user ? '/home' : '/')}>
+            <div className='flex items-center gap-2 cursor-pointer'
+                onClick={() => {
+                    const target = user ? '/home' : '/'
+                    if (location.pathname !== target) {
+                        navigate(target)
+                    }
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}>
                 <div className='w-7 h-7 rounded-lg flex items-center justify-center'>
                     <img src="/terminal_favicon.png" alt="logo" />
                 </div>
-                <span className='font-semibold text-white tracking-tight'>DevRoom</span>
+                <span className="font-bold bg-gradient-to-b from-[#ff7a00] to-[#ffd500] bg-clip-text text-transparent">DevRoom</span>
             </div>
 
             {/* Nav links - desktop only */}
@@ -119,7 +137,7 @@ const Navbar = () => {
                     <button
                         key={link.label}
                         onClick={link.action}
-                        className='px-3 py-1.5 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition'>
+                        className='px-3 py-1.5 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition cursor-pointer'>
                         {link.label}
                     </button>
                 ))}
@@ -130,11 +148,61 @@ const Navbar = () => {
 
                 {/* Desktop right content */}
                 <div className='hidden md:flex items-center gap-3'>
+
+                    {user && (
+                        <div ref={notifRef} className='relative'>
+                            <button
+                                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                                className='relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer'>
+                                <i className='ri-notification-3-line text-lg'></i>
+                                {pendingInvites.length > 0 && (
+                                    <span className='absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full'>
+                                        {pendingInvites.length > 9 ? '9+' : pendingInvites.length}
+                                    </span>
+                                )}
+                            </button>
+
+                            {isNotifOpen && (
+                                <div className='absolute right-0 top-full mt-2 w-80 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50'>
+                                    <div className='px-4 py-3 border-b border-slate-700'>
+                                        <p className='text-sm font-semibold text-white'>Notifications</p>
+                                    </div>
+                                    <div className='max-h-80 overflow-y-auto custom-scroll'>
+                                        {pendingInvites.length === 0 ? (
+                                            <p className='text-sm text-slate-500 text-center py-6'>No new notifications</p>
+                                        ) : (
+                                            pendingInvites.map(inv => (
+                                                <div key={inv.projectId} className='px-4 py-3 border-b border-slate-700/50 last:border-b-0'>
+                                                    <p className='text-sm text-slate-200'>
+                                                        <span className='font-semibold'>{inv.invitedBy?.name || inv.invitedBy?.email}</span> invited you to <span className='font-semibold'>{inv.projectName}</span>
+                                                    </p>
+                                                    <p className='text-xs text-slate-500 mt-0.5'>{inv.invitedBy?.email}</p>
+                                                    <div className='flex items-center gap-2 mt-2'>
+                                                        <button
+                                                            onClick={() => handleRespond(inv.projectId, 'reject')}
+                                                            className='px-3 py-1 text-xs border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition'>
+                                                            Decline
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRespond(inv.projectId, 'accept')}
+                                                            className='px-3 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition'>
+                                                            Accept
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    
                     {user ? (
                         <div ref={profileRef} className='relative'>
                             <button
                                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                className='flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-600 transition'>
+                                className='flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-600 transition cursor-pointer'>
                                 <div className='w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold overflow-hidden'>
                                     {user?.avatar ? (
                                         <img src={user.avatar} alt='avatar' className='w-full h-full object-cover' />
@@ -154,12 +222,12 @@ const Navbar = () => {
                                     </div>
                                     <button
                                         onClick={() => { setIsProfileOpen(false); navigate('/profile') }}
-                                        className='w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition'>
+                                        className='w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition cursor-pointer'>
                                         <i className='ri-user-settings-line'></i> Edit Profile
                                     </button>
                                     <button
                                         onClick={logout}
-                                        className='w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-900/30 transition'>
+                                        className='w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-900/30 transition cursor-pointer'>
                                         <i className='ri-logout-box-r-line'></i> Logout
                                     </button>
                                 </div>
@@ -167,8 +235,8 @@ const Navbar = () => {
                         </div>
                     ) : (
                         <>
-                            <button onClick={() => navigate('/login')} className='text-sm text-slate-400 hover:text-white transition px-3 py-1.5'>Sign in</button>
-                            <button onClick={() => navigate('/register')} className='text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg font-medium transition'>Get started</button>
+                            <button onClick={() => navigate('/login')} className='text-sm text-slate-400 hover:text-white transition px-3 py-1.5 cursor-pointer'>Sign in</button>
+                            <button onClick={() => navigate('/register')} className='text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg font-medium transition cursor-pointer'>Get started</button>
                         </>
                     )}
                 </div>

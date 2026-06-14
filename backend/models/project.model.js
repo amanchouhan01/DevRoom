@@ -12,6 +12,28 @@ const messageSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 
+const inviteSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+    invitedBy: {
+        _id: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+        name: String,
+        email: String
+    },
+    status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }
+}, { timestamps: true })
+
+
+const emailInviteSchema = new mongoose.Schema({
+    email: { type: String, required: true, lowercase: true, trim: true },
+    invitedBy: {
+        _id: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+        name: String,
+        email: String
+    },
+    status: { type: String, enum: ['pending', 'accepted'], default: 'pending' }
+}, { timestamps: true })
+
+
 const projectSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -31,10 +53,13 @@ const projectSchema = new mongoose.Schema({
         type: Object,
         default: {}
     },
-    messages: [messageSchema]
+    messages: [messageSchema],
+    pendingInvites: [inviteSchema],
+    emailInvites: [emailInviteSchema]
 },
     { timestamps: true }
 )
+
 
 
 const Project = mongoose.model('project', projectSchema)

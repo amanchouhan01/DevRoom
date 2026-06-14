@@ -46,7 +46,7 @@ const Newsletter = () => {
                 <button
                     onClick={handleSubscribe}
                     disabled={loading}
-                    className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition whitespace-nowrap'>
+                    className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition whitespace-nowrap cursor-pointer'>
                     {loading ? 'Subscribing...' : 'Subscribe'}
                 </button>
             </div>

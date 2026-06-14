@@ -3,18 +3,37 @@ import { UserContext } from '../context/user.context'
 import axios from '../config/axios.js'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { NotificationContext } from '../context/notification.context'
 
 const Home = () => {
   const { user } = useContext(UserContext)
+  const { pendingInvites, respondInvite } = useContext(NotificationContext)
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [projectName, setProjectName] = useState('')
   const [project, setProject] = useState([])
   const [aiQueriesToday, setAiQueriesToday] = useState(0)
+
   const navigate = useNavigate()
 
   const projectsRef = useRef(null)
   const featuresRef = useRef(null)
   const aboutRef = useRef(null)
+
+
+
+  const respondToInvite = (projectId, action) => {
+    respondInvite(projectId, action)
+      .then(() => {
+        if (action === 'accept') {
+          toast.success('Invite accepted!')
+          axios.get('/projects/all').then(res => setProject(res.data.projects)).catch(() => { })
+        } else {
+          toast.info('Invite declined')
+        }
+      })
+      .catch(err => showApiError(err, 'Failed to respond to invite'))
+  }
 
   // expose refs to window so Navbar can scroll to them
   useEffect(() => {
@@ -23,6 +42,9 @@ const Home = () => {
   }, [])
 
   function showApiError(err, fallback = "Something went wrong") {
+
+    if (err.code === 'ERR_NETWORK' || !navigator.onLine) return
+
     const data = err.response?.data
     if (data?.errors?.length) data.errors.forEach((er) => toast.error(er.msg))
     else toast.error(data?.message || fallback)
@@ -109,7 +131,33 @@ const Home = () => {
   }
 
   useEffect(() => {
+    const bc = new BroadcastChannel('devroom')
+    bc.onmessage = (event) => {
+      if (event.data?.type === 'project-deleted') {
+        setProject(prev => {
+          const exists = prev.some(p => p._id === event.data.projectId)
+          if (exists) toast.info('A project was deleted')
+          return prev.filter(p => p._id !== event.data.projectId)
+        })
+      }
+    }
+    return () => bc.close()
+  }, [])
+
+  const openProject = async (proj) => {
+    try {
+      const res = await axios.get(`/projects/get-project/${proj._id}`)
+      if (!res.data?.project) throw new Error('not found')
+      navigate('/project', { state: { project: res.data.project } })
+    } catch (err) {
+      toast.error('This project no longer exists')
+      setProject(prev => prev.filter(p => p._id !== proj._id))
+    }
+  }
+
+  useEffect(() => {
     const fetchProjects = () => {
+      if (!navigator.onLine) return
       axios.get('/projects/all')
         .then((res) => setProject(res.data.projects))
         .catch(err => showApiError(err, 'Failed to load projects'))
@@ -119,33 +167,178 @@ const Home = () => {
     return () => clearInterval(interval)
   }, [])
 
-  return (
-    <main className='min-h-screen bg-slate-900 text-white'>
 
-      {/* ── HERO GREETING ── */}
-      <section className='bg-gradient-to-br from-blue-950/50 via-slate-900 to-slate-900 border-b border-slate-800 px-6 md:px-10 py-16'>
-        <div className='max-w-6xl mx-auto'>
-          <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-900/40 border border-blue-800/50 text-blue-400 text-xs font-medium mb-6'>
-            <i className='ri-sparkling-line'></i>
-            Powered by Google Gemini AI
+  //Animation for right card
+  const codeLines = [
+    [{ t: 'import ', c: 'text-purple-400' }, { t: 'React', c: 'text-blue-300' }, { t: ' from ', c: 'text-purple-400' }, { t: "'react'", c: 'text-green-400' }],
+    [],
+    [{ t: 'function ', c: 'text-purple-400' }, { t: 'App', c: 'text-yellow-300' }, { t: '() {', c: 'text-slate-300' }],
+    [{ t: '  return (', c: 'text-purple-400' }],
+    [{ t: '    <', c: 'text-slate-400' }, { t: 'div', c: 'text-cyan-400' }, { t: ' ', c: 'text-slate-400' }, { t: 'className', c: 'text-amber-300' }, { t: '=', c: 'text-slate-400' }, { t: '"app"', c: 'text-green-400' }, { t: '>', c: 'text-slate-400' }],
+    [{ t: '      Hello, DevRoom! 🚀', c: 'text-slate-300' }],
+    [{ t: '    </', c: 'text-slate-400' }, { t: 'div', c: 'text-cyan-400' }, { t: '>', c: 'text-slate-400' }],
+    [{ t: '  )', c: 'text-slate-300' }],
+    [{ t: '}', c: 'text-slate-300' }],
+  ]
+
+  const lineLength = (line) => line.reduce((sum, p) => sum + p.t.length, 0)
+
+  const [typedLines, setTypedLines] = useState([])
+  const [lineIndex, setLineIndex] = useState(0)
+  const [charIndex, setCharIndex] = useState(0)
+  const [showCursor, setShowCursor] = useState(true)
+
+  // Typing effect
+  useEffect(() => {
+    if (lineIndex >= codeLines.length) {
+      const t = setTimeout(() => {
+        setTypedLines([])
+        setLineIndex(0)
+        setCharIndex(0)
+      }, 2000)
+      return () => clearTimeout(t)
+    }
+
+    const total = lineLength(codeLines[lineIndex])
+    if (charIndex < total) {
+      const t = setTimeout(() => setCharIndex(c => c + 1), 18 + Math.random() * 30)
+      return () => clearTimeout(t)
+    } else {
+      const t = setTimeout(() => {
+        setTypedLines(prev => [...prev, lineIndex])
+        setLineIndex(i => i + 1)
+        setCharIndex(0)
+      }, total === 0 ? 80 : 250)
+      return () => clearTimeout(t)
+    }
+  }, [lineIndex, charIndex])
+
+  // Blinking cursor
+  useEffect(() => {
+    const interval = setInterval(() => setShowCursor(c => !c), 500)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Renders typed portion of a line with syntax colors
+  const renderTypedLine = (parts, typedCount) => {
+    if (parts.length === 0) return '\u00A0'
+    let remaining = typedCount
+    const out = []
+    for (let i = 0; i < parts.length; i++) {
+      if (remaining <= 0) break
+      const part = parts[i]
+      const take = Math.min(part.t.length, remaining)
+      out.push(<span key={i} className={part.c}>{part.t.slice(0, take)}</span>)
+      remaining -= take
+    }
+    return out.length ? out : '\u00A0'
+  }
+
+  return (
+
+    <main className='min-h-screen w-full overflow-x-hidden bg-slate-900 text-white'>
+
+      {/* ── PENDING INVITES BANNER (top) ── */}
+      {pendingInvites.length > 0 && (
+        <div className='bg-blue-950/60 border-b border-blue-800/40'>
+          <div className='max-w-6xl mx-auto px-6 md:px-10 py-3 flex flex-col gap-3'>
+            {pendingInvites.map(inv => (
+              <div key={inv.projectId} className='flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800/60 border border-blue-800/40 rounded-xl px-5 py-3'>
+                <div className='min-w-0 flex items-center gap-2'>
+                  <i className='ri-mail-unread-line text-blue-400 shrink-0'></i>
+                  <p className='text-sm text-white break-words'>
+                    <span className='font-semibold'>{inv.invitedBy?.name || inv.invitedBy?.email}</span> invited you to <span className='font-semibold'>{inv.projectName}</span>
+                  </p>
+                </div>
+                <div className='flex items-center gap-2 shrink-0'>
+                  <button onClick={() => respondToInvite(inv.projectId, 'reject')} className='px-3 py-1.5 text-xs border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition'>Decline</button>
+                  <button onClick={() => respondToInvite(inv.projectId, 'accept')} className='px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition'>Accept</button>
+                </div>
+              </div>
+            ))}
           </div>
-          <h1 className='text-3xl md:text-5xl font-bold leading-tight tracking-tight mb-4'>
-            Welcome back, {user?.name?.split(' ')[0]} 👋
-          </h1>
-          <p className='text-slate-400 text-base md:text-lg mb-8 max-w-xl'>
-            {todayString} — {project.length} active project{project.length !== 1 ? 's' : ''}. Ready to build something great?
-          </p>
-          <div className='flex flex-wrap gap-3'>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className='flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition'>
-              <i className='ri-add-line'></i> New Project
-            </button>
-            <button
-              onClick={() => projectsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              className='flex items-center gap-2 px-5 py-2.5 border border-slate-700 hover:border-slate-500 rounded-xl text-sm text-slate-300 hover:text-white transition'>
-              View Projects
-            </button>
+        </div>
+      )}
+    
+      {/* ── HERO GREETING ── */}
+      <section className='bg-gradient-to-br from-blue-950/50 via-slate-900 to-slate-900 border-b border-slate-800'>
+        <div className='max-w-6xl mx-auto px-6 md:px-10 py-14 md:py-28'>
+          <div className='flex flex-col lg:flex-row items-center gap-12'>
+
+            {/* ── LEFT: existing greeting content ── */}
+            <div className='flex-1 w-full'>
+              <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-900/40 border border-blue-800/50 text-blue-400 text-xs font-medium mb-6'>
+                <i className='ri-sparkling-line'></i>
+                Powered by Google Gemini AI
+              </div>
+              <h1 className='text-3xl md:text-5xl font-bold leading-tight tracking-tight mb-4'>
+                Welcome back, {user?.name?.split(' ')[0]}!
+              </h1>
+              <p className='text-slate-400 text-base md:text-lg mb-8 max-w-xl'>
+                {todayString} — {project.length} active project{project.length !== 1 ? 's' : ''}. Ready to build something great?
+              </p>
+              <div className='flex flex-wrap gap-3'>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className='flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition cursor-pointer'>
+                  <i className='ri-add-line'></i> New Project
+                </button>
+                <button
+                  onClick={() => projectsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                  className='flex items-center gap-2 px-5 py-2.5 border border-slate-700 hover:border-slate-500 rounded-xl text-sm text-slate-300 hover:text-white transition cursor-pointer'>
+                  View Projects
+                </button>
+              </div>
+            </div>
+
+            {/* ── RIGHT: code editor mockup (hidden on mobile) ── */}
+            <div className='w-full lg:flex-1 lg:max-w-md'>
+              <div className='relative'>
+                <div className='rounded-xl border border-slate-700 bg-slate-800/80 shadow-2xl overflow-hidden backdrop-blur h-[260px] sm:h-[300px] flex flex-col'>
+                  {/* Title bar */}
+                  <div className='flex items-center gap-2 px-4 py-2.5 bg-slate-900 border-b border-slate-700'>
+                    <div className='flex gap-1.5'>
+                      <span className='w-2.5 h-2.5 rounded-full bg-red-500'></span>
+                      <span className='w-2.5 h-2.5 rounded-full bg-yellow-500'></span>
+                      <span className='w-2.5 h-2.5 rounded-full bg-green-500'></span>
+                    </div>
+                    <span className='text-xs text-slate-500 ml-2'>App.jsx</span>
+                  </div>
+                  {/* Code lines */}
+                  <div className='p-5 font-mono text-xs leading-relaxed h-[300px]'>
+                    {typedLines.map(idx => (
+                      <p key={idx} className='whitespace-pre'>
+                        {renderTypedLine(codeLines[idx], lineLength(codeLines[idx]))}
+                      </p>
+                    ))}
+
+                    {lineIndex < codeLines.length && (
+                      <p className='whitespace-pre'>
+                        {renderTypedLine(codeLines[lineIndex], charIndex)}
+                        <span className={`inline-block w-[2px] h-3.5 bg-blue-400 ml-0.5 align-middle transition-opacity ${showCursor ? 'opacity-100' : 'opacity-0'}`}></span>
+                      </p>
+                    )}
+
+                    {lineIndex >= codeLines.length && (
+                      <p className='mt-2 text-slate-600'>// AI is generating code...</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Floating badges */}
+                <div className='absolute -top-4 -right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-900/80 border border-green-700/50 text-green-400 text-xs font-medium shadow-lg backdrop-blur'>
+                  <i className='ri-checkbox-circle-fill'></i> Build Passing
+                </div>
+                <div className='absolute -bottom-4 -left-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-900/80 border border-blue-700/50 text-blue-400 text-xs font-medium shadow-lg backdrop-blur'>
+                  <i className='ri-robot-2-line'></i> AI Suggestion Ready
+                </div>
+
+                {/* Decorative glow blobs */}
+                <div className='absolute -top-10 -right-10 w-32 h-32 rounded-full bg-blue-600/20 blur-2xl -z-10'></div>
+                <div className='absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-purple-600/20 blur-2xl -z-10'></div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -160,7 +353,7 @@ const Home = () => {
                 <i className={`${stat.icon} text-lg ${stat.iconColor}`}></i>
               </div>
               <p className='text-xs text-slate-400 mb-1'>{stat.label}</p>
-              <p className='text-3xl font-semibold'>{stat.value}</p>
+              <p className='text-xl md:text-3xl font-semibold'>{stat.value}</p>
               <p className='text-xs text-slate-500 mt-1'>{stat.sub}</p>
             </div>
           ))}
@@ -173,7 +366,7 @@ const Home = () => {
               <p className='text-xs text-blue-400 uppercase tracking-widest font-medium mb-1'>Your Work</p>
               <h2 className='text-xl font-bold'>Recent Projects</h2>
             </div>
-            <button onClick={() => setIsModalOpen(true)} className='flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition'>
+            <button onClick={() => setIsModalOpen(true)} className='flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition cursor-pointer'>
               <i className='ri-add-line'></i> New
             </button>
           </div>
@@ -194,7 +387,7 @@ const Home = () => {
                 return (
                   <div
                     key={proj._id}
-                    onClick={() => navigate('/project', { state: { project: proj } })}
+                    onClick={() => openProject(proj)}
                     className='bg-slate-800 rounded-xl border border-slate-700 p-5 cursor-pointer hover:border-blue-700/50 hover:bg-slate-750 transition group'>
                     <div className='flex items-start justify-between mb-4'>
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-${color}-900/50`}>
@@ -202,7 +395,7 @@ const Home = () => {
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); deleteProject(proj._id) }}
-                        className='p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition'>
+                        className='p-1.5 rounded-lg opacity-100 md:opacity-0  md:group-hover:opacity-100 hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition'>
                         <i className='ri-delete-bin-6-line text-sm'></i>
                       </button>
                     </div>
@@ -271,8 +464,6 @@ const Home = () => {
             </div>
           </div>
         </div>
-
-
 
       </div>
 

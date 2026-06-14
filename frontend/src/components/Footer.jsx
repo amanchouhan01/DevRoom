@@ -125,12 +125,12 @@ const Footer = () => {
             </div>
 
             {/* Links */}
-            <div className='max-w-6xl mx-auto px-6 md:px-10 pb-10'>
-                <div className='grid grid-cols-2 md:grid-cols-5 gap-8 pb-10 border-b border-slate-800'>
+            <div className='max-w-6xl mx-auto px-5 sm:px-6 md:px-10 pb-10'>
+                <div className='grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8 pb-8 md:pb-10 border-b border-slate-800'>
 
                     {/* Brand */}
-                    <div className='col-span-2 md:col-span-1'>
-                        <div className='flex items-center gap-2 mb-4'>
+                    <div className='col-span-2 md:col-span-1 text-center md:text-left'>
+                        <div className='flex items-center justify-center md:justify-start gap-2 mb-4'>
                             <div className='w-7 h-7 rounded-lg flex items-center justify-center'>
                                 <img src="/terminal_favicon.png" alt="logo" />
                             </div>
@@ -139,7 +139,7 @@ const Footer = () => {
                         <p className='text-xs text-slate-500 leading-relaxed mb-4'>
                             Collaborative coding platform powered by Gemini AI.
                         </p>
-                        <div className='flex gap-3'>
+                        <div className='flex justify-center md:justify-start gap-3'>
                             {[
                                 { icon: 'ri-github-line', href: 'https://github.com/amanchouhan01/DevRoom', color: 'bg-[#24292f] hover:bg-[#181717] ' },
                                 { icon: 'ri-twitter-x-line', href: 'https://x.com/AmanChouhan01', color: 'bg-black hover:bg-zinc-800' },
@@ -158,10 +158,10 @@ const Footer = () => {
                     {footerSections.map(section => (
                         <div key={section.title}>
                             <p className='text-xs text-slate-400 uppercase tracking-widest font-medium mb-4'>{section.title}</p>
-                            <ul className='space-y-2.5'>
+                            <ul className='space-y-2 md:space-y-2.5'>
                                 {section.items.map(item => (
                                     <li key={item.label}>
-                                        <button onClick={item.action} className='text-sm text-slate-500 hover:text-white transition'>
+                                        <button onClick={item.action} className='sm:text-sm text-xs text-slate-500 hover:text-white transition cursor-pointer'>
                                             {item.label}
                                         </button>
                                     </li>
@@ -173,7 +173,7 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom */}
-                <div className='pt-6 flex flex-col md:flex-row items-center justify-between gap-4'>
+                <div className='pt-6 flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 text-center'>
                     <p className='text-xs text-slate-500'>© 2026 DevRoom. All rights reserved.</p>
                     <p className='text-xs text-slate-600'>Built with ❤️ by <span className='text-slate-400'>Aman Chouhan</span></p>
                 </div>

@@ -75,4 +75,49 @@ router.delete('/:projectId',
     authMiddleWare.authUser,
     projectController.deleteProject)
 
+
+router.post('/invite',
+    authMiddleWare.authUser,
+    body('projectId')
+        .notEmpty().withMessage('Project ID is required')
+        .isMongoId().withMessage('Project ID must be a valid MongoDB ObjectId'),
+    body('userIds')
+        .isArray({ min: 1 }).withMessage('userIds must be a non-empty array'),
+    body('userIds.*')
+        .isMongoId().withMessage('Each userId must be a valid MongoDB ObjectId'),
+    projectController.inviteUsers
+)
+
+
+router.post('/invite-email',
+    authMiddleWare.authUser,
+    body('projectId')
+        .notEmpty().withMessage('Project ID is required')
+        .isMongoId().withMessage('Project ID must be a valid MongoDB ObjectId'),
+    body('email')
+        .isEmail().withMessage('Valid email is required'),
+    projectController.inviteByEmailController
+)
+
+
+router.get('/invites/pending',
+    authMiddleWare.authUser,
+    projectController.getPendingInvites
+)
+
+router.put('/invites/respond',
+    authMiddleWare.authUser,
+    body('projectId')
+        .notEmpty().withMessage('Project ID is required')
+        .isMongoId().withMessage('Project ID must be a valid MongoDB ObjectId'),
+    body('action')
+        .isIn(['accept', 'reject']).withMessage("action must be 'accept' or 'reject'"),
+    projectController.respondInvite
+)
+
+router.delete('/:projectId/leave',
+    authMiddleWare.authUser,
+    projectController.leaveProjectController
+)
+
 export default router;

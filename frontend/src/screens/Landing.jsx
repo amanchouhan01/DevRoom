@@ -46,10 +46,10 @@ const Landing = () => {
                     DevRoom is a collaborative coding platform where your team and Gemini AI work in the same room — real-time editor, in-browser terminal, and persistent chat.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <button onClick={() => navigate('/register')} className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                    <button onClick={() => navigate('/register')} className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 cursor-pointer">
                         Start for free <i className="ri-arrow-right-line"></i>
                     </button>
-                    <button onClick={() => featuresRef.current?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto px-8 py-3.5 border border-slate-700 hover:border-slate-500 rounded-xl text-sm text-slate-300 hover:text-white transition">
+                    <button onClick={() => featuresRef.current?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto px-8 py-3.5 border border-slate-700 hover:border-slate-500 rounded-xl text-sm text-slate-300 hover:text-white transition cursor-pointer">
                         See features
                     </button>
                 </div>
@@ -183,7 +183,7 @@ const Landing = () => {
                 <div className="max-w-2xl mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to build together?</h2>
                     <p className="text-slate-400 mb-8">Free to use. No credit card required.</p>
-                    <button onClick={() => navigate('/register')} className="px-10 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition text-base">
+                    <button onClick={() => navigate('/register')} className="px-10 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition text-base cursor-pointer">
                         Create your account →
                     </button>
                 </div>

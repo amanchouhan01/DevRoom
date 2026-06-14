@@ -16,6 +16,8 @@ import UserAuth from '../auth/UserAuth'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import ScrollToTop from '../components/ScrollToTop';
+import OfflineBanner from '../components/OfflineBanner';
+import { NotificationProvider } from '../context/notification.context';
 
 
 const AppLayout = () => {
@@ -25,22 +27,24 @@ const AppLayout = () => {
     return (
 
         <>
-            {<Navbar />}
-
-            <Suspense fallback={<div>Loading...</div>}>
-                <ScrollToTop />
-                <Routes>
-                    <Route path='/' element={<Landing />} />
-                    <Route path='/home' element={<UserAuth><Home /></UserAuth>} />
-                    <Route path='/login' element={<Login />} />
-                    <Route path='/register' element={<Register />} />
-                    <Route path='/project' element={<UserAuth><Project /></UserAuth>} />
-                    <Route path='/terms' element={<Terms />} />
-                    <Route path='/privacy' element={<Privacy />} />
-                    <Route path='/profile' element={<UserAuth><Profile /></UserAuth>} />
-                    <Route path='/forgot-password' element={<ForgotPassword />} />
-                </Routes>
-            </Suspense>
+            <NotificationProvider>
+                {<Navbar />}
+                <OfflineBanner />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <ScrollToTop />
+                    <Routes>
+                        <Route path='/' element={<Landing />} />
+                        <Route path='/home' element={<UserAuth><Home /></UserAuth>} />
+                        <Route path='/login' element={<Login />} />
+                        <Route path='/register' element={<Register />} />
+                        <Route path='/project' element={<UserAuth><Project /></UserAuth>} />
+                        <Route path='/terms' element={<Terms />} />
+                        <Route path='/privacy' element={<Privacy />} />
+                        <Route path='/profile' element={<UserAuth><Profile /></UserAuth>} />
+                        <Route path='/forgot-password' element={<ForgotPassword />} />
+                    </Routes>
+                </Suspense>
+            </NotificationProvider>
 
             {!hideFooter && <Footer />}
         </>

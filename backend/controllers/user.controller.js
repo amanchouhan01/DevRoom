@@ -1,6 +1,7 @@
 import userModel from '../models/user.model.js';
 import redisClient from '../services/redis.service.js';
 import * as userService from '../services/user.service.js';
+import * as projectService from '../services/project.service.js'
 import { validationResult } from 'express-validator';
 import { generateOTP, storeOTP, verifyOTP } from '../services/otp.service.js';
 import { sendOTP } from '../services/email.service.js';
@@ -67,6 +68,9 @@ export const verifySignupOTPController = async (req, res) => {
       { isVerified: true },
       { new: true }
     )
+
+    // Linking pending email invites
+    await projectService.convertEmailInvitesToUserInvites({ email, userId: user._id })
 
     const token = await user.generateJWT()
     delete user._doc.password
@@ -368,7 +372,6 @@ export const forgotPassword = async (req, res) => {
   }
 }
 
-
 //Step 2: Verify OTP + Set new password
 export const resetPassword = async (req, res) => {
   try {
@@ -404,5 +407,26 @@ export const resetPassword = async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: 'Failed to reset password' })
+  }
+}
+
+// Search user controller
+export const searchUser = async (req, res) => {
+  try {
+    const { email } = req.query
+
+    if (!email || email.trim().length < 3) {
+      return res.status(400).json({ message: 'Please type at least 3 characters' })
+    }
+
+    const users = await userModel.find({
+      email: { $regex: email.trim(), $options: 'i' }, // case-insensitive partial match
+      _id: { $ne: req.user._id } // apna khud ka email result mein na aaye
+    }).select('_id email').limit(5)
+
+    res.json({ users })
+  } catch (err) {
+    console.error('Search error:', err)
+    res.status(500).json({ message: 'Search failed' })
   }
 }

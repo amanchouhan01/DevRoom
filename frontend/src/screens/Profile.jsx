@@ -145,7 +145,7 @@ const Profile = () => {
                             </label>
                             {avatarFile && (
                                 <button onClick={handleAvatarUpload} disabled={loading}
-                                    className='px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm transition sm:w-fit'>
+                                    className='px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm transition sm:w-fit cursor-pointer'>
                                     {loading ? 'Uploading...' : 'Save Picture'}
                                 </button>
                             )}
@@ -163,7 +163,7 @@ const Profile = () => {
                             className='flex-1 w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500'
                         />
                         <button onClick={handleNameUpdate} disabled={loading}
-                            className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap'>
+                            className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap cursor-pointer'>
                             Save
                         </button>
                     </div>
@@ -184,7 +184,7 @@ const Profile = () => {
                                 className='flex-1 w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500 placeholder-slate-500'
                             />
                             <button onClick={handleRequestEmailOtp} disabled={loading || !newEmail}
-                                className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap'>
+                                className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap cursor-pointer'>
                                 Send OTP
                             </button>
                         </div>
@@ -199,11 +199,11 @@ const Profile = () => {
                             />
                             <div className='flex gap-3'>
                                 <button onClick={handleVerifyEmailOtp} disabled={loading || !emailOtp}
-                                    className='flex-1 sm:flex-none px-5 py-2.5 bg-green-600 hover:bg-green-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap'>
+                                    className='flex-1 sm:flex-none px-5 py-2.5 bg-green-600 hover:bg-green-500 disabled:opacity-50 rounded-lg text-sm font-medium transition whitespace-nowrap cursor-pointer'>
                                     Verify
                                 </button>
                                 <button onClick={() => { setEmailOtpSent(false); setEmailOtp('') }}
-                                    className='flex-1 sm:flex-none px-4 py-2.5 border border-slate-600 hover:bg-slate-700 rounded-lg text-sm transition whitespace-nowrap'>
+                                    className='flex-1 sm:flex-none px-4 py-2.5 border border-slate-600 hover:bg-slate-700 rounded-lg text-sm transition whitespace-nowrap cursor-pointer'>
                                     Cancel
                                 </button>
 
@@ -238,7 +238,7 @@ const Profile = () => {
                             className='w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm outline-none focus:border-blue-500 placeholder-slate-500'
                         />
                         <button onClick={handlePasswordUpdate} disabled={loading || !currentPassword || !newPassword}
-                            className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition'>
+                            className='px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg text-sm font-medium transition cursor-pointer'>
                             Update Password
                         </button>
                     </div>

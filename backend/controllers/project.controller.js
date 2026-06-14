@@ -141,3 +141,82 @@ export const deleteProject = async (req, res) => {
         });
     }
 };
+
+
+export const inviteUsers = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { projectId, userIds } = req.body;
+        const result = await projectService.inviteUsersToProject({
+            projectId,
+            targetUserIds: userIds,
+            inviter: req.user
+        });
+        return res.status(200).json(result);
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ error: err.message });
+    }
+}
+
+export const getPendingInvites = async (req, res) => {
+    try {
+        const invites = await projectService.getMyPendingInvites({ userId: req.user._id })
+        return res.status(200).json({ invites })
+    } catch (err) {
+        console.log(err)
+        res.status(400).json({ error: err.message })
+    }
+}
+
+export const respondInvite = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { projectId, action } = req.body;
+        const project = await projectService.respondToInvite({
+            projectId,
+            userId: req.user._id,
+            action
+        })
+        return res.status(200).json({ project })
+    } catch (err) {
+        console.log(err)
+        res.status(400).json({ error: err.message })
+    }
+}
+
+export const leaveProjectController = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const project = await projectService.leaveProject({
+            projectId,
+            userId: req.user._id
+        })
+        return res.status(200).json({ project })
+    } catch (err) {
+        console.log(err)
+        res.status(400).json({ error: err.message })
+    }
+}
+
+
+export const inviteByEmailController = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { projectId, email } = req.body
+        const result = await projectService.inviteByEmail({ projectId, email, inviter: req.user })
+        return res.status(200).json(result)
+    } catch (err) {
+        console.log(err)
+        res.status(400).json({ error: err.message })
+    }
+}
