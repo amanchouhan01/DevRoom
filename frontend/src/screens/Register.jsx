@@ -197,7 +197,7 @@ const Register = () => {
                             <form onSubmit={verifyOtpHandler} className="space-y-5">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">OTP Code</label>
-                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
+                                    <div className="relative rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 focus-within:border-slate-600 focus-within:ring-1 focus-within:ring-slate-600">
                                         <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input
                                             type="text"

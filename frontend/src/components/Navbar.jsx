@@ -146,58 +146,58 @@ const Navbar = () => {
             {/* Right */}
             <div className='flex items-center justify-end gap-3'>
 
+                {user && (
+                    <div ref={notifRef} className='relative'>
+                        <button
+                            onClick={() => setIsNotifOpen(!isNotifOpen)}
+                            className='relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer'>
+                            <i className='ri-notification-3-line text-lg'></i>
+                            {pendingInvites.length > 0 && (
+                                <span className='absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full'>
+                                    {pendingInvites.length > 9 ? '9+' : pendingInvites.length}
+                                </span>
+                            )}
+                        </button>
+
+                        {isNotifOpen && (
+                            <div className='fixed left-2 right-2 top-15 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 w-auto max-w-none sm:max-w-none bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50'>
+                                <div className='px-4 py-3 border-b border-slate-700'>
+                                    <p className='text-sm font-semibold text-white'>Notifications</p>
+                                </div>
+                                <div className='max-h-80 overflow-y-auto custom-scroll'>
+                                    {pendingInvites.length === 0 ? (
+                                        <p className='text-sm text-slate-500 text-center py-6'>No new notifications</p>
+                                    ) : (
+                                        pendingInvites.map(inv => (
+                                            <div key={inv.projectId} className='px-4 py-3 border-b border-slate-700/50 last:border-b-0'>
+                                                <p className='text-sm text-slate-200'>
+                                                    <span className='font-semibold'>{inv.invitedBy?.name || inv.invitedBy?.email}</span> invited you to <span className='font-semibold'>{inv.projectName}</span>
+                                                </p>
+                                                <p className='text-xs text-slate-500 mt-0.5'>{inv.invitedBy?.email}</p>
+                                                <div className='flex items-center gap-2 mt-2'>
+                                                    <button
+                                                        onClick={() => handleRespond(inv.projectId, 'reject')}
+                                                        className='px-3 py-1 text-xs border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition'>
+                                                        Decline
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRespond(inv.projectId, 'accept')}
+                                                        className='px-3 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition'>
+                                                        Accept
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Desktop right content */}
                 <div className='hidden md:flex items-center gap-3'>
 
-                    {user && (
-                        <div ref={notifRef} className='relative'>
-                            <button
-                                onClick={() => setIsNotifOpen(!isNotifOpen)}
-                                className='relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer'>
-                                <i className='ri-notification-3-line text-lg'></i>
-                                {pendingInvites.length > 0 && (
-                                    <span className='absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full'>
-                                        {pendingInvites.length > 9 ? '9+' : pendingInvites.length}
-                                    </span>
-                                )}
-                            </button>
-
-                            {isNotifOpen && (
-                                <div className='absolute right-0 top-full mt-2 w-80 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50'>
-                                    <div className='px-4 py-3 border-b border-slate-700'>
-                                        <p className='text-sm font-semibold text-white'>Notifications</p>
-                                    </div>
-                                    <div className='max-h-80 overflow-y-auto custom-scroll'>
-                                        {pendingInvites.length === 0 ? (
-                                            <p className='text-sm text-slate-500 text-center py-6'>No new notifications</p>
-                                        ) : (
-                                            pendingInvites.map(inv => (
-                                                <div key={inv.projectId} className='px-4 py-3 border-b border-slate-700/50 last:border-b-0'>
-                                                    <p className='text-sm text-slate-200'>
-                                                        <span className='font-semibold'>{inv.invitedBy?.name || inv.invitedBy?.email}</span> invited you to <span className='font-semibold'>{inv.projectName}</span>
-                                                    </p>
-                                                    <p className='text-xs text-slate-500 mt-0.5'>{inv.invitedBy?.email}</p>
-                                                    <div className='flex items-center gap-2 mt-2'>
-                                                        <button
-                                                            onClick={() => handleRespond(inv.projectId, 'reject')}
-                                                            className='px-3 py-1 text-xs border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition'>
-                                                            Decline
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleRespond(inv.projectId, 'accept')}
-                                                            className='px-3 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition'>
-                                                            Accept
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    
                     {user ? (
                         <div ref={profileRef} className='relative'>
                             <button

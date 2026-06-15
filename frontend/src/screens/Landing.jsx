@@ -1,10 +1,20 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useRef, useEffect } from 'react'
+import { useContext, useRef, useEffect } from 'react'
+import { UserContext } from '../context/user.context'
 
 const Landing = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const featuresRef = useRef(null)
+    const { user } = useContext(UserContext)
+
+
+    useEffect(() => {
+        const token = localStorage.getItem('token')
+        if (token && user) {
+            navigate('/home', { replace: true })
+        }
+    }, [user])
 
     useEffect(() => {
         if (location.state?.scrollTo) {
