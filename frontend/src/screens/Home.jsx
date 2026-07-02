@@ -431,7 +431,7 @@ const Home = () => {
         </div>
 
         {/* About DevRoom */}
-        <section id='about-section' className="px-6 md:px-16 py-20 border-t border-slate-800">
+        <section ref={aboutRef} className="px-6 md:px-16 py-20 border-t border-slate-800">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
               <div>
