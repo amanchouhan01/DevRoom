@@ -259,7 +259,7 @@ const Home = () => {
           </div>
         </div>
       )}
-    
+
       {/* ── HERO GREETING ── */}
       <section className='bg-gradient-to-br from-blue-950/50 via-slate-900 to-slate-900 border-b border-slate-800'>
         <div className='max-w-6xl mx-auto px-6 md:px-10 py-14 md:py-28'>
@@ -430,40 +430,71 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ── ABOUT SECTION ── */}
-        <div ref={aboutRef} className='py-10 border-t border-slate-800'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-10 items-center'>
-            <div>
-              <p className='text-xs text-blue-400 uppercase tracking-widest font-medium mb-3'>About DevRoom</p>
-              <h2 className='text-2xl md:text-3xl font-bold mb-4'>Code together, ship faster</h2>
-              <p className='text-slate-400 text-sm leading-relaxed mb-4'>
-                DevRoom is a collaborative coding platform where your team and Gemini AI work in the same room — real-time editor, in-browser terminal, and persistent chat.
-              </p>
-              <p className='text-slate-400 text-sm leading-relaxed mb-6'>
-                Built with React, Node.js, Socket.io, Redis, WebContainers API, and Google Gemini — DevRoom is designed for speed, collaboration, and developer joy.
-              </p>
-              <div className='flex flex-wrap gap-2'>
-                {['React', 'Node.js', 'Socket.io', 'Redis', 'MongoDB', 'Gemini AI', 'WebContainers'].map(tag => (
-                  <span key={tag} className='text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300'>{tag}</span>
+        {/* About DevRoom */}
+        <section id='about-section' className="px-6 md:px-16 py-20 border-t border-slate-800">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+              <div>
+                <p className="text-xs text-blue-400 uppercase tracking-widest font-medium mb-3">About DevRoom</p>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Code together, ship faster</h2>
+                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                  DevRoom is a collaborative coding platform where your team and Gemini AI work in the same room — real-time editor, in-browser terminal, and persistent chat.
+                </p>
+                <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                  Built with React, Node.js, Socket.io, Redis, WebContainers API, and Google Gemini — DevRoom is designed for speed, collaboration, and developer joy.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {['React', 'Node.js', 'Socket.io', 'Redis', 'MongoDB', 'Gemini AI', 'WebContainers'].map(tag => (
+                    <span key={tag} className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300">{tag}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { number: '01', title: 'AI Pair Programming', desc: 'Gemini reviews, writes, and debugs code with you in real time.' },
+                  { number: '02', title: 'Live Collaboration', desc: 'Multiple devs, one room — see edits and chat instantly.' },
+                  { number: '03', title: 'Zero Setup', desc: 'Run full Node.js projects in-browser via WebContainers.' },
+                  { number: '04', title: 'Persistent History', desc: 'Files and chats are saved — pick up anytime.' },
+                ].map(s => (
+                  <div key={s.number} className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                    <span className="text-blue-400 font-bold text-xs">{s.number}</span>
+                    <h3 className="font-semibold text-sm mt-2 mb-1">{s.title}</h3>
+                    <p className="text-xs text-slate-400">{s.desc}</p>
+                  </div>
                 ))}
               </div>
             </div>
-            <div className='grid grid-cols-2 gap-4'>
-              {[
-                { number: '01', title: 'Create account', desc: 'Sign up and verify with OTP.' },
-                { number: '02', title: 'Start a project', desc: 'Create and invite collaborators.' },
-                { number: '03', title: 'Code with AI', desc: 'Use Gemini to scaffold faster.' },
-                { number: '04', title: 'Ship together', desc: 'Run, test, and deploy live.' },
-              ].map(s => (
-                <div key={s.number} className='bg-slate-800 rounded-xl p-4 border border-slate-700'>
-                  <span className='text-blue-400 font-bold text-xs'>{s.number}</span>
-                  <h3 className='font-semibold text-sm mt-2 mb-1'>{s.title}</h3>
-                  <p className='text-xs text-slate-400'>{s.desc}</p>
-                </div>
-              ))}
+
+            {/* Founder*/}
+            <div className="mt-12 pt-10 border-t border-slate-800 text-center">
+              <p className="text-xs text-blue-400 uppercase tracking-widest font-medium mb-2">About the Founder</p>
+              <p className="text-slate-400 text-sm leading-relaxed mb-5 max-w-xl mx-auto">
+                DevRoom was created and is maintained by{' '}
+                <span className="text-white font-semibold">Aman Chouhan</span>,
+                a final-year B.Tech ECE student at JNU Delhi, passionate about
+                building developer tools and AI-powered applications.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+                <a href="https://github.com/amanchouhan01" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                  <i className="ri-github-line text-base leading-none"></i><span>amanchouhan01</span>
+                </a>
+                <a href="https://www.linkedin.com/in/aman-chouhan-sde/" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                  <i className="ri-linkedin-line text-base leading-none"></i><span>aman-chouhan-sde</span>
+                </a>
+                <a href="https://x.com/AmanChouhan01" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                  <i className="ri-twitter-x-line text-base leading-none"></i><span>AmanChouhan01</span>
+                </a>
+                <a href="https://www.instagram.com/amanchouhxn/" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                  <i className="ri-instagram-line text-base leading-none"></i><span>amanchouhxn</span>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
       </div>
 

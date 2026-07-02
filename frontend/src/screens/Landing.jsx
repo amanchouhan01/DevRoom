@@ -165,6 +165,35 @@ const Landing = () => {
                             ))}
                         </div>
                     </div>
+
+                    {/* Founder*/}
+                    <div className="mt-12 pt-10 border-t border-slate-800 text-center">
+                        <p className="text-xs text-blue-400 uppercase tracking-widest font-medium mb-2">About the Founder</p>
+                        <p className="text-slate-400 text-sm leading-relaxed mb-5 max-w-xl mx-auto">
+                            DevRoom was created and is maintained by{' '}
+                            <span className="text-white font-semibold">Aman Chouhan</span>,
+                            a final-year B.Tech ECE student at JNU Delhi, passionate about
+                            building developer tools and AI-powered applications.
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+                            <a href="https://github.com/amanchouhan01" target="_blank" rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                                <i className="ri-github-line text-base leading-none"></i><span>amanchouhan01</span>
+                            </a>
+                            <a href="https://www.linkedin.com/in/aman-chouhan-sde/" target="_blank" rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                                <i className="ri-linkedin-line text-base leading-none"></i><span>aman-chouhan-sde</span>
+                            </a>
+                            <a href="https://x.com/AmanChouhan01" target="_blank" rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                                <i className="ri-twitter-x-line text-base leading-none"></i><span>AmanChouhan01</span>
+                            </a>
+                            <a href="https://www.instagram.com/amanchouhxn/" target="_blank" rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                                <i className="ri-instagram-line text-base leading-none"></i><span>amanchouhxn</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </section>
 
