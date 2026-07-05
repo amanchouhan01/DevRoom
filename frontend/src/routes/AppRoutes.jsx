@@ -10,6 +10,8 @@ const Terms = React.lazy(() => import('../screens/Terms'));
 const Privacy = React.lazy(() => import('../screens/Privacy'));
 const Profile = React.lazy(() => import('../screens/Profile'));
 const ForgotPassword = React.lazy(() => import('../screens/ForgotPassword'));
+const AuthCallback = React.lazy(() => import('../screens/AuthCallback'));
+
 
 
 import UserAuth from '../auth/UserAuth'
@@ -42,6 +44,7 @@ const AppLayout = () => {
                         <Route path='/privacy' element={<Privacy />} />
                         <Route path='/profile' element={<UserAuth><Profile /></UserAuth>} />
                         <Route path='/forgot-password' element={<ForgotPassword />} />
+                        <Route path='/auth/callback' element={<AuthCallback />} />
                     </Routes>
                 </Suspense>
             </NotificationProvider>

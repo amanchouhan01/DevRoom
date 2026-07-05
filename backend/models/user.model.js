@@ -39,7 +39,12 @@ const userSchema = new mongoose.Schema({
     pendingEmail: { type: String },
 
     resetPasswordOTP: { type: String },
-    resetPasswordOTPExpiry: { type: Date }
+    resetPasswordOTPExpiry: { type: Date },
+
+    googleId: {
+    type: String,
+    default: null
+}
 
 }, { timestamps: true })
 
